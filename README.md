@@ -18,6 +18,34 @@ SupportFlow AI takes a support ticket for a fictional online shop (NordCart), cl
 - **Error handling.** Retries for transient AI errors, error outputs on every sub-workflow call, and a global error workflow.
 - **Audit trail.** Each step is logged with its time, actor (automation, AI or human) and status change.
 
+## Process analysis
+
+Before building, I modeled NordCart's current support process in BPMN 2.0 and analyzed its performance with assumed baseline values.
+
+| Baseline measure (modeled) | Value |
+|---|---|
+| Active manual processing per ticket | 13 minutes |
+| Waiting time per ticket | 75 minutes (85% of the cycle time) |
+| Cycle time per ticket | 88 minutes |
+| Volume | 1,000 tickets per month (35% delivery, 25% returns and refunds) |
+| Labor capacity used | about 72,750 EUR per year at 25 EUR per hour |
+
+**As-is process.** One support agent registers, checks, classifies, researches and answers every ticket by hand. The support manager reviews sensitive cases.
+
+![As-is BPMN](docs/process/as-is-process-bpmn.png)
+
+![As-is processing time per activity](docs/process/as-is-processing-time.png)
+
+**To-be process.** An automation lane (n8n + AI) takes over registration, validation, classification, retrieval and drafting. People keep review, escalation and approval. AI errors and failed retrievals fall back to manual handling.
+
+![To-be BPMN](docs/process/to-be-process-bpmn.png)
+
+This repository implements the core of the to-be model: intake, validation, duplicate check, AI classification, verified retrieval, grounded drafting, human approval, error handling and logging. The automatic reply for low-risk tickets, the clarification email with its 48-hour timeout, and the specialist handoff are part of the target design but not built yet.
+
+![Modeled handling time before and after](docs/process/handling-time-before-after.png)
+
+The BPMN source files can be opened in Camunda Modeler: [`as-is-process.bpmn`](docs/process/as-is-process.bpmn), [`to-be-process.bpmn`](docs/process/to-be-process.bpmn). All baseline values are simulated assumptions for a fictional company.
+
 ## Architecture
 
 Six workflows share four n8n Data Tables. `SF-01` orchestrates the other stages as sub-workflows.

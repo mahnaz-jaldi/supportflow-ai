@@ -1,0 +1,1058 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_SupportFlowToBe" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.53.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:collaboration id="Collaboration_SupportFlow">
+    <bpmn:participant id="Participant_Customer" name="Customer" processRef="Process_Customer" />
+    <bpmn:participant id="Participant_Nordcard" name="Nordcard" processRef="Process_Nordcard" />
+    <bpmn:messageFlow id="Msg_request" sourceRef="Cust_Submit" targetRef="Start_RequestReceived" />
+    <bpmn:messageFlow id="Msg_duplicate" sourceRef="Task_NotifyDuplicate" targetRef="Cust_RecvDup" />
+    <bpmn:messageFlow id="Msg_clarification" sourceRef="Task_RequestInfo" targetRef="Cust_RecvClarif" />
+    <bpmn:messageFlow id="Msg_details" sourceRef="Cust_Provide" targetRef="Task_WaitInfo" />
+    <bpmn:messageFlow id="Msg_timeout" sourceRef="Task_SendTimeout" targetRef="Cust_RecvTimeout" />
+    <bpmn:messageFlow id="Msg_handoff" sourceRef="Task_SendHandoff" targetRef="Cust_RecvHandoff" />
+    <bpmn:messageFlow id="Msg_autoResponse" sourceRef="Task_SendAuto" targetRef="Cust_RecvFinal" />
+    <bpmn:messageFlow id="Msg_humanResponse" sourceRef="Task_SendHuman" targetRef="Cust_RecvFinal" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Customer" isExecutable="true">
+    <bpmn:startEvent id="Cust_Start" name="Support needed">
+      <bpmn:outgoing>Cf_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sendTask id="Cust_Submit" name="Submit support request">
+      <bpmn:incoming>Cf_1</bpmn:incoming>
+      <bpmn:outgoing>Cf_2</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:eventBasedGateway id="Cust_Wait" name="Wait for support messages">
+      <bpmn:incoming>Cf_2</bpmn:incoming>
+      <bpmn:incoming>Cf_11</bpmn:incoming>
+      <bpmn:outgoing>Cf_3</bpmn:outgoing>
+      <bpmn:outgoing>Cf_4</bpmn:outgoing>
+      <bpmn:outgoing>Cf_5</bpmn:outgoing>
+      <bpmn:outgoing>Cf_6</bpmn:outgoing>
+      <bpmn:outgoing>Cf_7</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:receiveTask id="Cust_RecvFinal" name="Receive final response">
+      <bpmn:incoming>Cf_3</bpmn:incoming>
+      <bpmn:outgoing>Cf_8</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:endEvent id="Cust_EndResolved" name="Request resolved">
+      <bpmn:incoming>Cf_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:receiveTask id="Cust_RecvTimeout" name="Receive timeout notice">
+      <bpmn:incoming>Cf_4</bpmn:incoming>
+      <bpmn:outgoing>Cf_9</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:endEvent id="Cust_EndTimeout" name="Request timed out">
+      <bpmn:incoming>Cf_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:receiveTask id="Cust_RecvClarif" name="Receive clarification request">
+      <bpmn:incoming>Cf_5</bpmn:incoming>
+      <bpmn:outgoing>Cf_10</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sendTask id="Cust_Provide" name="Provide additional information">
+      <bpmn:incoming>Cf_10</bpmn:incoming>
+      <bpmn:outgoing>Cf_11</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="Cust_RecvDup" name="Receive duplicate notice">
+      <bpmn:incoming>Cf_6</bpmn:incoming>
+      <bpmn:outgoing>Cf_12</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:endEvent id="Cust_EndDup" name="Duplicate acknowledged">
+      <bpmn:incoming>Cf_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:receiveTask id="Cust_RecvHandoff" name="Receive specialist handoff notice">
+      <bpmn:incoming>Cf_7</bpmn:incoming>
+      <bpmn:outgoing>Cf_13</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:endEvent id="Cust_EndHandoff" name="Case handed off">
+      <bpmn:incoming>Cf_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Cf_1" sourceRef="Cust_Start" targetRef="Cust_Submit" />
+    <bpmn:sequenceFlow id="Cf_2" sourceRef="Cust_Submit" targetRef="Cust_Wait" />
+    <bpmn:sequenceFlow id="Cf_3" sourceRef="Cust_Wait" targetRef="Cust_RecvFinal" />
+    <bpmn:sequenceFlow id="Cf_4" sourceRef="Cust_Wait" targetRef="Cust_RecvTimeout" />
+    <bpmn:sequenceFlow id="Cf_5" sourceRef="Cust_Wait" targetRef="Cust_RecvClarif" />
+    <bpmn:sequenceFlow id="Cf_6" sourceRef="Cust_Wait" targetRef="Cust_RecvDup" />
+    <bpmn:sequenceFlow id="Cf_7" sourceRef="Cust_Wait" targetRef="Cust_RecvHandoff" />
+    <bpmn:sequenceFlow id="Cf_8" sourceRef="Cust_RecvFinal" targetRef="Cust_EndResolved" />
+    <bpmn:sequenceFlow id="Cf_9" sourceRef="Cust_RecvTimeout" targetRef="Cust_EndTimeout" />
+    <bpmn:sequenceFlow id="Cf_10" sourceRef="Cust_RecvClarif" targetRef="Cust_Provide" />
+    <bpmn:sequenceFlow id="Cf_11" sourceRef="Cust_Provide" targetRef="Cust_Wait" />
+    <bpmn:sequenceFlow id="Cf_12" sourceRef="Cust_RecvDup" targetRef="Cust_EndDup" />
+    <bpmn:sequenceFlow id="Cf_13" sourceRef="Cust_RecvHandoff" targetRef="Cust_EndHandoff" />
+  </bpmn:process>
+  <bpmn:process id="Process_Nordcard" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Nordcard">
+      <bpmn:lane id="Lane_Automation" name="Automation System (n8n + AI)">
+        <bpmn:flowNodeRef>Start_RequestReceived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Register</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DetectDuplicate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Duplicate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_InfoComplete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ClassifyAI</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RetrieveData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Verified</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssessRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Eligible</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerateDraft</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendAuto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_MergeResponse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_TicketResolved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LinkTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyDuplicate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_DuplicateClosed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RequestInfo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_WaitInfo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Revalidate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MarkTimedOut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendTimeout</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_TimedOut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LogAIFailure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateEscalated</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendHandoff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SpecialistHandoff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendHuman</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Timer_48h</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Err_Classify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Err_Generate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Err_Retrieve</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SupportAgent" name="Support Agent">
+        <bpmn:flowNodeRef>Task_ManualClassify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RetrieveManual</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviewCase</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_MergeReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Specialist</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_ApprovalRequired</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_MergeApproved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Escalate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviseResponse</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SupportManager" name="Support Manager">
+        <bpmn:flowNodeRef>Task_ReviewApprove</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Approved</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_RequestReceived" name="Request received">
+      <bpmn:outgoing>Nf_main0</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_Request" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_Register" name="Register incoming ticket">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="register-ticket" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_main0</bpmn:incoming>
+      <bpmn:outgoing>Nf_main1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_DetectDuplicate" name="Detect duplicate ticket">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="detect-duplicate" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_main1</bpmn:incoming>
+      <bpmn:outgoing>Nf_main2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_Duplicate" name="Duplicate?">
+      <bpmn:incoming>Nf_main2</bpmn:incoming>
+      <bpmn:outgoing>Nf_dupNo</bpmn:outgoing>
+      <bpmn:outgoing>Nf_dupYes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_Validate" name="Validate request information">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="validate-request" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_dupNo</bpmn:incoming>
+      <bpmn:outgoing>Nf_main3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_InfoComplete" name="Information complete?">
+      <bpmn:incoming>Nf_main3</bpmn:incoming>
+      <bpmn:incoming>Nf_loop</bpmn:incoming>
+      <bpmn:outgoing>Nf_infoYes</bpmn:outgoing>
+      <bpmn:outgoing>Nf_infoNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_ClassifyAI" name="Classify and prioritize with AI">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="ai-classify" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_infoYes</bpmn:incoming>
+      <bpmn:outgoing>Nf_main4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_RetrieveData" name="Retrieve verified order/policy data">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="retrieve-verified-data" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_main4</bpmn:incoming>
+      <bpmn:outgoing>Nf_main5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_Verified" name="Verified information available?">
+      <bpmn:incoming>Nf_main5</bpmn:incoming>
+      <bpmn:outgoing>Nf_verYes</bpmn:outgoing>
+      <bpmn:outgoing>Nf_verNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_AssessRisk" name="Assess automation risk">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="assess-risk" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_verYes</bpmn:incoming>
+      <bpmn:outgoing>Nf_main6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_Eligible" name="Eligible for auto-response?">
+      <bpmn:incoming>Nf_main6</bpmn:incoming>
+      <bpmn:outgoing>Nf_eliYes</bpmn:outgoing>
+      <bpmn:outgoing>Nf_eliNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_GenerateDraft" name="Generate AI response draft">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="ai-generate-draft" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_eliYes</bpmn:incoming>
+      <bpmn:outgoing>Nf_main7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Task_SendAuto" name="Send automated response">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-automated-response" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_main7</bpmn:incoming>
+      <bpmn:outgoing>Nf_main8</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:exclusiveGateway id="Gw_MergeResponse" name="Merge response paths (XOR)">
+      <bpmn:incoming>Nf_main8</bpmn:incoming>
+      <bpmn:incoming>Nf_humanMerge</bpmn:incoming>
+      <bpmn:outgoing>Nf_main9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_UpdateTicket" name="Update ticket and audit log">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="update-ticket-audit" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_main9</bpmn:incoming>
+      <bpmn:outgoing>Nf_main10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_TicketResolved" name="Ticket resolved">
+      <bpmn:incoming>Nf_main10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_LinkTicket" name="Link to existing ticket">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="link-ticket" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_dupYes</bpmn:incoming>
+      <bpmn:outgoing>Nf_link</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Task_NotifyDuplicate" name="Notify customer of duplicate">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="notify-duplicate" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_link</bpmn:incoming>
+      <bpmn:outgoing>Nf_dupEnd</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="End_DuplicateClosed" name="Duplicate closed">
+      <bpmn:incoming>Nf_dupEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sendTask id="Task_RequestInfo" name="Request missing information">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="request-missing-info" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_infoNo</bpmn:incoming>
+      <bpmn:outgoing>Nf_req</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="Task_WaitInfo" name="Wait for customer information">
+      <bpmn:incoming>Nf_req</bpmn:incoming>
+      <bpmn:outgoing>Nf_reply</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:serviceTask id="Task_Revalidate" name="Revalidate request information">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="revalidate-request" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_reply</bpmn:incoming>
+      <bpmn:outgoing>Nf_loop</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_MarkTimedOut" name="Mark ticket as timed out">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="mark-timed-out" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_timeout</bpmn:incoming>
+      <bpmn:outgoing>Nf_tm2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Task_SendTimeout" name="Send timeout notice">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-timeout-notice" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_tm2</bpmn:incoming>
+      <bpmn:outgoing>Nf_tm3</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="End_TimedOut" name="Timed out">
+      <bpmn:incoming>Nf_tm3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_LogAIFailure" name="Log automation failure">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="log-ai-failure" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_errC</bpmn:incoming>
+      <bpmn:incoming>Nf_errG</bpmn:incoming>
+      <bpmn:incoming>Nf_errR</bpmn:incoming>
+      <bpmn:outgoing>Nf_manual</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_UpdateEscalated" name="Update ticket status to escalated">
+      <bpmn:incoming>Nf_escalate</bpmn:incoming>
+      <bpmn:outgoing>Nf_escalateStatus</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Task_SendHandoff" name="Send handoff notice">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-handoff-notice" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_escalateStatus</bpmn:incoming>
+      <bpmn:outgoing>Nf_handoffEnd</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="End_SpecialistHandoff" name="Specialist case handed off">
+      <bpmn:incoming>Nf_handoffEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sendTask id="Task_SendHuman" name="Send human-approved response">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-human-response" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_toHuman</bpmn:incoming>
+      <bpmn:outgoing>Nf_humanMerge</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:boundaryEvent id="Timer_48h" name="48h elapsed" attachedToRef="Task_WaitInfo">
+      <bpmn:outgoing>Nf_timeout</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_48h">
+        <bpmn:timeDuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression">PT48H</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Classify" name="AI error" attachedToRef="Task_ClassifyAI">
+      <bpmn:outgoing>Nf_errC</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_Err_Classify" errorRef="Error_AI" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Generate" name="AI error" attachedToRef="Task_GenerateDraft">
+      <bpmn:outgoing>Nf_errG</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_Err_Generate" errorRef="Error_AI" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Retrieve" name="Data retrieval failed" attachedToRef="Task_RetrieveData">
+      <bpmn:outgoing>Nf_errR</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_Err_Retrieve" errorRef="Error_DataRetrieval" />
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="Task_ManualClassify" name="Manual classification">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_manual</bpmn:incoming>
+      <bpmn:outgoing>Nf_m2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_RetrieveManual" name="Retrieve verified data manually">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_m2</bpmn:incoming>
+      <bpmn:outgoing>Nf_m3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ReviewCase" name="Review case and prepare response">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_toReview</bpmn:incoming>
+      <bpmn:outgoing>Nf_review</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_MergeReview" name="Merge human-review paths">
+      <bpmn:incoming>Nf_verNo</bpmn:incoming>
+      <bpmn:incoming>Nf_eliNo</bpmn:incoming>
+      <bpmn:incoming>Nf_m3</bpmn:incoming>
+      <bpmn:outgoing>Nf_toReview</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gw_Specialist" name="Specialist required?">
+      <bpmn:incoming>Nf_review</bpmn:incoming>
+      <bpmn:outgoing>Nf_specYes</bpmn:outgoing>
+      <bpmn:outgoing>Nf_specNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gw_ApprovalRequired" name="Manager approval required?">
+      <bpmn:incoming>Nf_specNo</bpmn:incoming>
+      <bpmn:outgoing>Nf_apprYes</bpmn:outgoing>
+      <bpmn:outgoing>Nf_apprNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gw_MergeApproved" name="Merge approved paths (XOR)">
+      <bpmn:incoming>Nf_apprNo</bpmn:incoming>
+      <bpmn:incoming>Nf_approvedYes</bpmn:incoming>
+      <bpmn:outgoing>Nf_toHuman</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_Escalate" name="Escalate to specialist">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_specYes</bpmn:incoming>
+      <bpmn:outgoing>Nf_escalate</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ReviseResponse" name="Revise response">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_approvedNo</bpmn:incoming>
+      <bpmn:outgoing>Nf_resubmit</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ReviewApprove" name="Review and approve response">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Nf_apprYes</bpmn:incoming>
+      <bpmn:incoming>Nf_resubmit</bpmn:incoming>
+      <bpmn:outgoing>Nf_ra</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_Approved" name="Approved?">
+      <bpmn:incoming>Nf_ra</bpmn:incoming>
+      <bpmn:outgoing>Nf_approvedNo</bpmn:outgoing>
+      <bpmn:outgoing>Nf_approvedYes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Nf_main0" sourceRef="Start_RequestReceived" targetRef="Task_Register" />
+    <bpmn:sequenceFlow id="Nf_main1" sourceRef="Task_Register" targetRef="Task_DetectDuplicate" />
+    <bpmn:sequenceFlow id="Nf_main2" sourceRef="Task_DetectDuplicate" targetRef="Gw_Duplicate" />
+    <bpmn:sequenceFlow id="Nf_main3" sourceRef="Task_Validate" targetRef="Gw_InfoComplete" />
+    <bpmn:sequenceFlow id="Nf_main4" sourceRef="Task_ClassifyAI" targetRef="Task_RetrieveData" />
+    <bpmn:sequenceFlow id="Nf_main5" sourceRef="Task_RetrieveData" targetRef="Gw_Verified" />
+    <bpmn:sequenceFlow id="Nf_main6" sourceRef="Task_AssessRisk" targetRef="Gw_Eligible" />
+    <bpmn:sequenceFlow id="Nf_main7" sourceRef="Task_GenerateDraft" targetRef="Task_SendAuto" />
+    <bpmn:sequenceFlow id="Nf_main8" sourceRef="Task_SendAuto" targetRef="Gw_MergeResponse" />
+    <bpmn:sequenceFlow id="Nf_main9" sourceRef="Gw_MergeResponse" targetRef="Task_UpdateTicket" />
+    <bpmn:sequenceFlow id="Nf_main10" sourceRef="Task_UpdateTicket" targetRef="End_TicketResolved" />
+    <bpmn:sequenceFlow id="Nf_dupNo" name="No" sourceRef="Gw_Duplicate" targetRef="Task_Validate" />
+    <bpmn:sequenceFlow id="Nf_dupYes" name="Yes" sourceRef="Gw_Duplicate" targetRef="Task_LinkTicket" />
+    <bpmn:sequenceFlow id="Nf_link" sourceRef="Task_LinkTicket" targetRef="Task_NotifyDuplicate" />
+    <bpmn:sequenceFlow id="Nf_dupEnd" sourceRef="Task_NotifyDuplicate" targetRef="End_DuplicateClosed" />
+    <bpmn:sequenceFlow id="Nf_infoYes" name="Yes" sourceRef="Gw_InfoComplete" targetRef="Task_ClassifyAI" />
+    <bpmn:sequenceFlow id="Nf_infoNo" name="No" sourceRef="Gw_InfoComplete" targetRef="Task_RequestInfo" />
+    <bpmn:sequenceFlow id="Nf_req" sourceRef="Task_RequestInfo" targetRef="Task_WaitInfo" />
+    <bpmn:sequenceFlow id="Nf_reply" sourceRef="Task_WaitInfo" targetRef="Task_Revalidate" />
+    <bpmn:sequenceFlow id="Nf_loop" sourceRef="Task_Revalidate" targetRef="Gw_InfoComplete" />
+    <bpmn:sequenceFlow id="Nf_timeout" sourceRef="Timer_48h" targetRef="Task_MarkTimedOut" />
+    <bpmn:sequenceFlow id="Nf_tm2" sourceRef="Task_MarkTimedOut" targetRef="Task_SendTimeout" />
+    <bpmn:sequenceFlow id="Nf_tm3" sourceRef="Task_SendTimeout" targetRef="End_TimedOut" />
+    <bpmn:sequenceFlow id="Nf_verYes" name="Yes" sourceRef="Gw_Verified" targetRef="Task_AssessRisk" />
+    <bpmn:sequenceFlow id="Nf_verNo" name="No" sourceRef="Gw_Verified" targetRef="Gw_MergeReview" />
+    <bpmn:sequenceFlow id="Nf_eliYes" name="Yes" sourceRef="Gw_Eligible" targetRef="Task_GenerateDraft" />
+    <bpmn:sequenceFlow id="Nf_eliNo" name="No" sourceRef="Gw_Eligible" targetRef="Gw_MergeReview" />
+    <bpmn:sequenceFlow id="Nf_errC" sourceRef="Err_Classify" targetRef="Task_LogAIFailure" />
+    <bpmn:sequenceFlow id="Nf_errG" sourceRef="Err_Generate" targetRef="Task_LogAIFailure" />
+    <bpmn:sequenceFlow id="Nf_errR" sourceRef="Err_Retrieve" targetRef="Task_LogAIFailure" />
+    <bpmn:sequenceFlow id="Nf_manual" sourceRef="Task_LogAIFailure" targetRef="Task_ManualClassify" />
+    <bpmn:sequenceFlow id="Nf_m2" sourceRef="Task_ManualClassify" targetRef="Task_RetrieveManual" />
+    <bpmn:sequenceFlow id="Nf_m3" sourceRef="Task_RetrieveManual" targetRef="Gw_MergeReview" />
+    <bpmn:sequenceFlow id="Nf_toReview" sourceRef="Gw_MergeReview" targetRef="Task_ReviewCase" />
+    <bpmn:sequenceFlow id="Nf_review" sourceRef="Task_ReviewCase" targetRef="Gw_Specialist" />
+    <bpmn:sequenceFlow id="Nf_specYes" name="Yes" sourceRef="Gw_Specialist" targetRef="Task_Escalate" />
+    <bpmn:sequenceFlow id="Nf_specNo" name="No" sourceRef="Gw_Specialist" targetRef="Gw_ApprovalRequired" />
+    <bpmn:sequenceFlow id="Nf_escalate" sourceRef="Task_Escalate" targetRef="Task_UpdateEscalated" />
+    <bpmn:sequenceFlow id="Nf_escalateStatus" sourceRef="Task_UpdateEscalated" targetRef="Task_SendHandoff" />
+    <bpmn:sequenceFlow id="Nf_handoffEnd" sourceRef="Task_SendHandoff" targetRef="End_SpecialistHandoff" />
+    <bpmn:sequenceFlow id="Nf_apprYes" name="Yes" sourceRef="Gw_ApprovalRequired" targetRef="Task_ReviewApprove" />
+    <bpmn:sequenceFlow id="Nf_apprNo" name="No" sourceRef="Gw_ApprovalRequired" targetRef="Gw_MergeApproved" />
+    <bpmn:sequenceFlow id="Nf_ra" sourceRef="Task_ReviewApprove" targetRef="Gw_Approved" />
+    <bpmn:sequenceFlow id="Nf_approvedNo" name="No" sourceRef="Gw_Approved" targetRef="Task_ReviseResponse" />
+    <bpmn:sequenceFlow id="Nf_resubmit" sourceRef="Task_ReviseResponse" targetRef="Task_ReviewApprove" />
+    <bpmn:sequenceFlow id="Nf_approvedYes" name="Yes" sourceRef="Gw_Approved" targetRef="Gw_MergeApproved" />
+    <bpmn:sequenceFlow id="Nf_toHuman" sourceRef="Gw_MergeApproved" targetRef="Task_SendHuman" />
+    <bpmn:sequenceFlow id="Nf_humanMerge" sourceRef="Task_SendHuman" targetRef="Gw_MergeResponse" />
+  </bpmn:process>
+  <bpmn:error id="Error_AI" name="AI error" errorCode="AI_ERROR" />
+  <bpmn:error id="Error_DataRetrieval" name="Data retrieval failed" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_SupportFlow">
+      <bpmndi:BPMNShape id="Participant_Customer_di" bpmnElement="Participant_Customer" isHorizontal="true">
+        <dc:Bounds x="140" y="60" width="2660" height="640" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_Start_di" bpmnElement="Cust_Start">
+        <dc:Bounds x="212" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="186.6" y="352" width="86.8" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_Submit_di" bpmnElement="Cust_Submit">
+        <dc:Bounds x="300" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_Wait_di" bpmnElement="Cust_Wait">
+        <dc:Bounds x="445" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="482" y="278" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_RecvFinal_di" bpmnElement="Cust_RecvFinal">
+        <dc:Bounds x="2250" y="80" width="160" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_EndResolved_di" bpmnElement="Cust_EndResolved">
+        <dc:Bounds x="2462" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2430.4" y="142" width="99.2" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_RecvTimeout_di" bpmnElement="Cust_RecvTimeout">
+        <dc:Bounds x="1600" y="185" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_EndTimeout_di" bpmnElement="Cust_EndTimeout">
+        <dc:Bounds x="1772" y="207" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1740" y="247" width="100" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_RecvClarif_di" bpmnElement="Cust_RecvClarif">
+        <dc:Bounds x="1150" y="395" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_Provide_di" bpmnElement="Cust_Provide">
+        <dc:Bounds x="1320" y="395" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_RecvDup_di" bpmnElement="Cust_RecvDup">
+        <dc:Bounds x="870" y="500" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_EndDup_di" bpmnElement="Cust_EndDup">
+        <dc:Bounds x="1042" y="522" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1010" y="562" width="100" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_RecvHandoff_di" bpmnElement="Cust_RecvHandoff">
+        <dc:Bounds x="662" y="605" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Cust_EndHandoff_di" bpmnElement="Cust_EndHandoff">
+        <dc:Bounds x="832" y="627" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="803.5" y="667" width="93" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Cf_1_di" bpmnElement="Cf_1">
+        <di:waypoint x="248" y="330" />
+        <di:waypoint x="300" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_2_di" bpmnElement="Cf_2">
+        <di:waypoint x="400" y="330" />
+        <di:waypoint x="445" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_3_di" bpmnElement="Cf_3">
+        <di:waypoint x="470" y="305" />
+        <di:waypoint x="470" y="120" />
+        <di:waypoint x="2250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_4_di" bpmnElement="Cf_4">
+        <di:waypoint x="470" y="305" />
+        <di:waypoint x="470" y="225" />
+        <di:waypoint x="1600" y="225" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_5_di" bpmnElement="Cf_5">
+        <di:waypoint x="470" y="355" />
+        <di:waypoint x="470" y="370" />
+        <di:waypoint x="1200" y="370" />
+        <di:waypoint x="1200" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_6_di" bpmnElement="Cf_6">
+        <di:waypoint x="470" y="355" />
+        <di:waypoint x="470" y="540" />
+        <di:waypoint x="870" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_7_di" bpmnElement="Cf_7">
+        <di:waypoint x="470" y="355" />
+        <di:waypoint x="470" y="645" />
+        <di:waypoint x="662" y="645" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_8_di" bpmnElement="Cf_8">
+        <di:waypoint x="2410" y="120" />
+        <di:waypoint x="2462" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_9_di" bpmnElement="Cf_9">
+        <di:waypoint x="1700" y="225" />
+        <di:waypoint x="1772" y="225" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_10_di" bpmnElement="Cf_10">
+        <di:waypoint x="1250" y="435" />
+        <di:waypoint x="1320" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_11_di" bpmnElement="Cf_11">
+        <di:waypoint x="1370" y="395" />
+        <di:waypoint x="1370" y="330" />
+        <di:waypoint x="495" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_12_di" bpmnElement="Cf_12">
+        <di:waypoint x="970" y="540" />
+        <di:waypoint x="1042" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Cf_13_di" bpmnElement="Cf_13">
+        <di:waypoint x="762" y="645" />
+        <di:waypoint x="832" y="645" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Nordcard_di" bpmnElement="Participant_Nordcard" isHorizontal="true">
+        <dc:Bounds x="140" y="780" width="2660" height="960" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SupportManager_di" bpmnElement="Lane_SupportManager" isHorizontal="true">
+        <dc:Bounds x="170" y="1590" width="2630" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SupportAgent_di" bpmnElement="Lane_SupportAgent" isHorizontal="true">
+        <dc:Bounds x="170" y="1260" width="2630" height="330" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Automation_di" bpmnElement="Lane_Automation" isHorizontal="true">
+        <dc:Bounds x="170" y="780" width="2630" height="480" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_RequestReceived_di" bpmnElement="Start_RequestReceived">
+        <dc:Bounds x="332" y="1052" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="300.4" y="1092" width="99.2" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Register_di" bpmnElement="Task_Register">
+        <dc:Bounds x="420" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DetectDuplicate_di" bpmnElement="Task_DetectDuplicate">
+        <dc:Bounds x="580" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_Duplicate_di" bpmnElement="Gw_Duplicate" isMarkerVisible="true">
+        <dc:Bounds x="745" y="1045" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="728" y="1100" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Validate_di" bpmnElement="Task_Validate">
+        <dc:Bounds x="870" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_InfoComplete_di" bpmnElement="Gw_InfoComplete" isMarkerVisible="true">
+        <dc:Bounds x="1175" y="1045" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1105" y="1100" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ClassifyAI_di" bpmnElement="Task_ClassifyAI">
+        <dc:Bounds x="1290" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RetrieveData_di" bpmnElement="Task_RetrieveData">
+        <dc:Bounds x="1450" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_Verified_di" bpmnElement="Gw_Verified" isMarkerVisible="true">
+        <dc:Bounds x="1625" y="1045" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1535" y="1004" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AssessRisk_di" bpmnElement="Task_AssessRisk">
+        <dc:Bounds x="1740" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_Eligible_di" bpmnElement="Gw_Eligible" isMarkerVisible="true">
+        <dc:Bounds x="1905" y="1045" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1815" y="1004" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateDraft_di" bpmnElement="Task_GenerateDraft">
+        <dc:Bounds x="2030" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendAuto_di" bpmnElement="Task_SendAuto">
+        <dc:Bounds x="2190" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_MergeResponse_di" bpmnElement="Gw_MergeResponse" isMarkerVisible="true">
+        <dc:Bounds x="2425" y="1045" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2400" y="1004" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UpdateTicket_di" bpmnElement="Task_UpdateTicket">
+        <dc:Bounds x="2540" y="1030" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_TicketResolved_di" bpmnElement="End_TicketResolved">
+        <dc:Bounds x="2722" y="1052" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2693.5" y="1092" width="93" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LinkTicket_di" bpmnElement="Task_LinkTicket">
+        <dc:Bounds x="720" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyDuplicate_di" bpmnElement="Task_NotifyDuplicate">
+        <dc:Bounds x="870" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_DuplicateClosed_di" bpmnElement="End_DuplicateClosed">
+        <dc:Bounds x="1022" y="932" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="990.4" y="972" width="99.2" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RequestInfo_di" bpmnElement="Task_RequestInfo">
+        <dc:Bounds x="1150" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_WaitInfo_di" bpmnElement="Task_WaitInfo">
+        <dc:Bounds x="1300" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Revalidate_di" bpmnElement="Task_Revalidate">
+        <dc:Bounds x="1040" y="800" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MarkTimedOut_di" bpmnElement="Task_MarkTimedOut">
+        <dc:Bounds x="1450" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendTimeout_di" bpmnElement="Task_SendTimeout">
+        <dc:Bounds x="1600" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_TimedOut_di" bpmnElement="End_TimedOut">
+        <dc:Bounds x="1762" y="932" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1752.1" y="972" width="55.8" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LogAIFailure_di" bpmnElement="Task_LogAIFailure">
+        <dc:Bounds x="1290" y="1150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UpdateEscalated_di" bpmnElement="Task_UpdateEscalated">
+        <dc:Bounds x="500" y="1150" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendHandoff_di" bpmnElement="Task_SendHandoff">
+        <dc:Bounds x="662" y="1150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SpecialistHandoff_di" bpmnElement="End_SpecialistHandoff">
+        <dc:Bounds x="832" y="1172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="1212" width="100" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendHuman_di" bpmnElement="Task_SendHuman">
+        <dc:Bounds x="2400" y="1150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ManualClassify_di" bpmnElement="Task_ManualClassify">
+        <dc:Bounds x="1290" y="1370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RetrieveManual_di" bpmnElement="Task_RetrieveManual">
+        <dc:Bounds x="1450" y="1370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviewCase_di" bpmnElement="Task_ReviewCase">
+        <dc:Bounds x="1600" y="1370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_MergeReview_di" bpmnElement="Gw_MergeReview" isMarkerVisible="true">
+        <dc:Bounds x="1625" y="1285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1527" y="1270" width="95" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_Specialist_di" bpmnElement="Gw_Specialist" isMarkerVisible="true">
+        <dc:Bounds x="1775" y="1385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1755" y="1344" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_ApprovalRequired_di" bpmnElement="Gw_ApprovalRequired" isMarkerVisible="true">
+        <dc:Bounds x="1975" y="1385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1950" y="1344" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_MergeApproved_di" bpmnElement="Gw_MergeApproved" isMarkerVisible="true">
+        <dc:Bounds x="2425" y="1385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2400" y="1344" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Escalate_di" bpmnElement="Task_Escalate">
+        <dc:Bounds x="1750" y="1480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviseResponse_di" bpmnElement="Task_ReviseResponse">
+        <dc:Bounds x="2050" y="1480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviewApprove_di" bpmnElement="Task_ReviewApprove">
+        <dc:Bounds x="2050" y="1620" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_Approved_di" bpmnElement="Gw_Approved" isMarkerVisible="true">
+        <dc:Bounds x="2225" y="1635" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2220" y="1690" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Err_Retrieve_di" bpmnElement="Err_Retrieve">
+        <dc:Bounds x="1517" y="1092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1556" y="1122" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Err_Generate_di" bpmnElement="Err_Generate">
+        <dc:Bounds x="2062" y="1092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2086" y="1128" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Err_Classify_di" bpmnElement="Err_Classify">
+        <dc:Bounds x="1322" y="1092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1346" y="1128" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Timer_48h_di" bpmnElement="Timer_48h">
+        <dc:Bounds x="1382" y="932" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1375" y="994" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Nf_main0_di" bpmnElement="Nf_main0">
+        <di:waypoint x="368" y="1070" />
+        <di:waypoint x="420" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main1_di" bpmnElement="Nf_main1">
+        <di:waypoint x="520" y="1070" />
+        <di:waypoint x="580" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main2_di" bpmnElement="Nf_main2">
+        <di:waypoint x="680" y="1070" />
+        <di:waypoint x="745" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main3_di" bpmnElement="Nf_main3">
+        <di:waypoint x="970" y="1070" />
+        <di:waypoint x="1175" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main4_di" bpmnElement="Nf_main4">
+        <di:waypoint x="1390" y="1070" />
+        <di:waypoint x="1450" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main5_di" bpmnElement="Nf_main5">
+        <di:waypoint x="1550" y="1070" />
+        <di:waypoint x="1625" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main6_di" bpmnElement="Nf_main6">
+        <di:waypoint x="1840" y="1070" />
+        <di:waypoint x="1905" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main7_di" bpmnElement="Nf_main7">
+        <di:waypoint x="2130" y="1070" />
+        <di:waypoint x="2190" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main8_di" bpmnElement="Nf_main8">
+        <di:waypoint x="2290" y="1070" />
+        <di:waypoint x="2425" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main9_di" bpmnElement="Nf_main9">
+        <di:waypoint x="2475" y="1070" />
+        <di:waypoint x="2540" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_main10_di" bpmnElement="Nf_main10">
+        <di:waypoint x="2640" y="1070" />
+        <di:waypoint x="2722" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_dupNo_di" bpmnElement="Nf_dupNo">
+        <di:waypoint x="795" y="1070" />
+        <di:waypoint x="870" y="1070" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="788" y="1050" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_dupYes_di" bpmnElement="Nf_dupYes">
+        <di:waypoint x="770" y="1045" />
+        <di:waypoint x="770" y="990" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="778" y="1018" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_link_di" bpmnElement="Nf_link">
+        <di:waypoint x="820" y="950" />
+        <di:waypoint x="870" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_dupEnd_di" bpmnElement="Nf_dupEnd">
+        <di:waypoint x="970" y="950" />
+        <di:waypoint x="1022" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_infoYes_di" bpmnElement="Nf_infoYes">
+        <di:waypoint x="1225" y="1070" />
+        <di:waypoint x="1290" y="1070" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1232" y="1050" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_infoNo_di" bpmnElement="Nf_infoNo">
+        <di:waypoint x="1200" y="1045" />
+        <di:waypoint x="1200" y="990" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1208" y="1018" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_req_di" bpmnElement="Nf_req">
+        <di:waypoint x="1250" y="950" />
+        <di:waypoint x="1300" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_reply_di" bpmnElement="Nf_reply">
+        <di:waypoint x="1320" y="910" />
+        <di:waypoint x="1320" y="840" />
+        <di:waypoint x="1140" y="840" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_loop_di" bpmnElement="Nf_loop">
+        <di:waypoint x="1120" y="880" />
+        <di:waypoint x="1120" y="1070" />
+        <di:waypoint x="1175" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_timeout_di" bpmnElement="Nf_timeout">
+        <di:waypoint x="1418" y="950" />
+        <di:waypoint x="1450" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_tm2_di" bpmnElement="Nf_tm2">
+        <di:waypoint x="1550" y="950" />
+        <di:waypoint x="1600" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_tm3_di" bpmnElement="Nf_tm3">
+        <di:waypoint x="1700" y="950" />
+        <di:waypoint x="1762" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_verYes_di" bpmnElement="Nf_verYes">
+        <di:waypoint x="1675" y="1070" />
+        <di:waypoint x="1740" y="1070" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1682" y="1050" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_verNo_di" bpmnElement="Nf_verNo">
+        <di:waypoint x="1650" y="1095" />
+        <di:waypoint x="1650" y="1285" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1658" y="1104" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_eliYes_di" bpmnElement="Nf_eliYes">
+        <di:waypoint x="1955" y="1070" />
+        <di:waypoint x="2030" y="1070" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1962" y="1050" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_eliNo_di" bpmnElement="Nf_eliNo">
+        <di:waypoint x="1930" y="1095" />
+        <di:waypoint x="1930" y="1310" />
+        <di:waypoint x="1675" y="1310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1938" y="1104" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_errC_di" bpmnElement="Nf_errC">
+        <di:waypoint x="1340" y="1128" />
+        <di:waypoint x="1340" y="1150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_errG_di" bpmnElement="Nf_errG">
+        <di:waypoint x="2080" y="1128" />
+        <di:waypoint x="2080" y="1190" />
+        <di:waypoint x="1390" y="1190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_errR_di" bpmnElement="Nf_errR">
+        <di:waypoint x="1535" y="1128" />
+        <di:waypoint x="1535" y="1170" />
+        <di:waypoint x="1390" y="1170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_manual_di" bpmnElement="Nf_manual">
+        <di:waypoint x="1340" y="1230" />
+        <di:waypoint x="1340" y="1370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_m2_di" bpmnElement="Nf_m2">
+        <di:waypoint x="1390" y="1410" />
+        <di:waypoint x="1450" y="1410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_m3_di" bpmnElement="Nf_m3">
+        <di:waypoint x="1500" y="1370" />
+        <di:waypoint x="1500" y="1310" />
+        <di:waypoint x="1625" y="1310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_toReview_di" bpmnElement="Nf_toReview">
+        <di:waypoint x="1650" y="1335" />
+        <di:waypoint x="1650" y="1370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_review_di" bpmnElement="Nf_review">
+        <di:waypoint x="1700" y="1410" />
+        <di:waypoint x="1775" y="1410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_specYes_di" bpmnElement="Nf_specYes">
+        <di:waypoint x="1800" y="1435" />
+        <di:waypoint x="1800" y="1480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1808" y="1444" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_specNo_di" bpmnElement="Nf_specNo">
+        <di:waypoint x="1825" y="1410" />
+        <di:waypoint x="1975" y="1410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1840" y="1390" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_escalate_di" bpmnElement="Nf_escalate">
+        <di:waypoint x="1750" y="1520" />
+        <di:waypoint x="560" y="1520" />
+        <di:waypoint x="560" y="1230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_escalateStatus_di" bpmnElement="Nf_escalateStatus">
+        <di:waypoint x="620" y="1190" />
+        <di:waypoint x="662" y="1190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_handoffEnd_di" bpmnElement="Nf_handoffEnd">
+        <di:waypoint x="762" y="1190" />
+        <di:waypoint x="832" y="1190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_apprYes_di" bpmnElement="Nf_apprYes">
+        <di:waypoint x="2000" y="1435" />
+        <di:waypoint x="2000" y="1660" />
+        <di:waypoint x="2050" y="1660" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2008" y="1444" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_apprNo_di" bpmnElement="Nf_apprNo">
+        <di:waypoint x="2025" y="1410" />
+        <di:waypoint x="2425" y="1410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2040" y="1390" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_ra_di" bpmnElement="Nf_ra">
+        <di:waypoint x="2150" y="1660" />
+        <di:waypoint x="2225" y="1660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_approvedNo_di" bpmnElement="Nf_approvedNo">
+        <di:waypoint x="2250" y="1635" />
+        <di:waypoint x="2250" y="1520" />
+        <di:waypoint x="2150" y="1520" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2258" y="1540" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_resubmit_di" bpmnElement="Nf_resubmit">
+        <di:waypoint x="2100" y="1560" />
+        <di:waypoint x="2100" y="1620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_approvedYes_di" bpmnElement="Nf_approvedYes">
+        <di:waypoint x="2275" y="1660" />
+        <di:waypoint x="2450" y="1660" />
+        <di:waypoint x="2450" y="1435" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2290" y="1640" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_toHuman_di" bpmnElement="Nf_toHuman">
+        <di:waypoint x="2450" y="1385" />
+        <di:waypoint x="2450" y="1230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Nf_humanMerge_di" bpmnElement="Nf_humanMerge">
+        <di:waypoint x="2450" y="1150" />
+        <di:waypoint x="2450" y="1095" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_request_di" bpmnElement="Msg_request">
+        <di:waypoint x="350" y="370" />
+        <di:waypoint x="350" y="1052" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_duplicate_di" bpmnElement="Msg_duplicate">
+        <di:waypoint x="920" y="910" />
+        <di:waypoint x="920" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_clarification_di" bpmnElement="Msg_clarification">
+        <di:waypoint x="1200" y="910" />
+        <di:waypoint x="1200" y="475" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_details_di" bpmnElement="Msg_details">
+        <di:waypoint x="1370" y="475" />
+        <di:waypoint x="1370" y="910" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_timeout_di" bpmnElement="Msg_timeout">
+        <di:waypoint x="1650" y="910" />
+        <di:waypoint x="1650" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_handoff_di" bpmnElement="Msg_handoff">
+        <di:waypoint x="712" y="1150" />
+        <di:waypoint x="712" y="685" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_autoResponse_di" bpmnElement="Msg_autoResponse">
+        <di:waypoint x="2270" y="1030" />
+        <di:waypoint x="2270" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_humanResponse_di" bpmnElement="Msg_humanResponse">
+        <di:waypoint x="2405" y="1150" />
+        <di:waypoint x="2405" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
