@@ -1,0 +1,4 @@
+order_id,customer_email,product_name,order_date,order_status,delivery_status,total_amount,refund_eligible
+NC-1001,sara@example.com,Wireless Headphones,2026-11-04T23:00:00.000Z,shipped,in_transit,89.9,false
+NC-1002,ali@example.com,Coffee Machine,2026-10-27T23:00:00.000Z,delivered,delivered,149,true
+NC-1003,mina@example.com,Laptop Stand,2026-11-09T23:00:00.000Z,processing,not_shipped,39.5,false

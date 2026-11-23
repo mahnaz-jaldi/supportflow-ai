@@ -1,0 +1,133 @@
+{
+  "name": "SF-04 | AI Response Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ticket_id"
+            },
+            {
+              "name": "customer_email"
+            },
+            {
+              "name": "subject"
+            },
+            {
+              "name": "description"
+            },
+            {
+              "name": "category"
+            },
+            {
+              "name": "order_status"
+            },
+            {
+              "name": "delivery_status"
+            },
+            {
+              "name": "policy_content"
+            },
+            {
+              "name": "requires_approval",
+              "type": "boolean"
+            },
+            {
+              "name": "requires_human_review",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7ea675e9-1722-4223-ab61-d7ce1ff82bdb",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a customer support assistant for NordCart, a fictional e-commerce company.\n\nYour task is to draft a clear, polite and accurate customer support response.\n\nTicket subject: {{ $json.subject }}\nCustomer message: {{ $json.description }}\nTicket category: {{ $json.category }}\nVerified order status: {{ $json.order_status }}\nVerified delivery status: {{ $json.delivery_status }}\nCompany policy: {{ $json.policy_content }}\nRequires approval: {{ $json.requires_approval }}\nRequires human review: {{ $json.requires_human_review }}\n\nRules:\n- Do not offer options, alternatives, or requirements (such as exchanges, photos, or deadlines) unless they are explicitly stated in the company policy.\n- Use only the verified information and company policy provided.\n- Never invent delivery dates, refunds, tracking numbers, or actions taken.\n- Do not claim that a refund, cancellation, or other operation has been completed.\n- If information is missing or uncertain, clearly say that further verification is needed.\n- If requires_approval or requires_human_review is true, write a draft for human review, not an approved response.\n- Do not send any email or message.\n- Write in professional, friendly English.\n- Do not ask the customer for information they have already provided, such as their order number.\n- Do not promise future actions (for example \"I will follow up\"). Instead, say that the NordCart support team is happy to help with further questions.\n- Describe the order and delivery status in natural, friendly language instead of quoting raw system values.\n\n\nReturn only the customer-facing draft response.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        224,
+        0
+      ],
+      "id": "35b083eb-ecd0-4a1d-afaf-4f6eb439c006",
+      "name": "AI | Generate Support Response",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        240
+      ],
+      "id": "a8e29209-e337-40ce-afa0-458f12ccce35",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI | Generate Support Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI | Generate Support Response",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "96ac6997-fbb5-4070-b3de-35c56f7bf9d9",
+  "meta": {},
+  "nodeGroups": [],
+  "id": "eNuTUAdLmCwRtNmR",
+  "tags": []
+}

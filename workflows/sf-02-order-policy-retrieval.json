@@ -1,0 +1,463 @@
+{
+  "name": "SF-02 | Order & Policy Retrieval",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -96
+      ],
+      "id": "a01c5294-d8ee-4dcc-8cdb-2df6246a177c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0acd4a7-4db2-4bba-a4bf-d908c409e710",
+              "name": "ticket_id",
+              "value": "NC-1001",
+              "type": "string"
+            },
+            {
+              "id": "fc76af2b-d715-4f00-84b8-82e0d9489159",
+              "name": "customer_email",
+              "value": "sara@example.com",
+              "type": "string"
+            },
+            {
+              "id": "9d939dea-b620-490c-8d48-bf399481c2a4",
+              "name": "order_id",
+              "value": "NC-9999",
+              "type": "string"
+            },
+            {
+              "id": "ea6a0c31-5bd1-4061-999e-40b9a4d28dde",
+              "name": "category",
+              "value": "delivery",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "e3517ed1-b444-462d-8145-70ed648688f7",
+      "name": "Set | Test Ticket"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "i0vNIvUkGJZuGCnE",
+          "mode": "list",
+          "cachedResultName": "orders",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/i0vNIvUkGJZuGCnE"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "order_id",
+              "keyValue": "={{ $json.order_id }}"
+            },
+            {
+              "keyName": "customer_email",
+              "keyValue": "={{ $json.customer_email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "91a1fa78-66f9-432d-9191-49b5f922fffe",
+      "name": "Data Table | Find Order",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "d278e78e-2912-497e-bbc0-c00e81a02cba",
+              "leftValue": "={{ $json.order_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d1b7a0a9-e42b-4c62-87ad-a123dc08c791",
+      "name": "IF | Order Verified"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "81b3f712-fb11-4b35-a791-f35840c781ac",
+              "name": "retrieval_status",
+              "value": "policy_not_found",
+              "type": "string"
+            },
+            {
+              "id": "cb3f00df-2bf4-4b68-8f0b-38564134d557",
+              "name": "requires_human_review",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "5c780fc6-b7b3-455c-8c4e-44069f928235",
+              "name": "message",
+              "value": "No active policy was found for this category.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "2afdb781-ac2a-4b97-865b-08f75803b375",
+      "name": "Set | Policy Missing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1fd33a6e-18c6-48aa-9a37-b590a2d6d8fc",
+              "name": "ticket_id",
+              "value": "={{ $('Execute Sub-workflow Trigger').first().json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "id": "a8f6f844-d7da-47ef-9d53-0e81bb4137ba",
+              "name": "order_id",
+              "value": "={{ $('Execute Sub-workflow Trigger').first().json.order_id }}",
+              "type": "string"
+            },
+            {
+              "id": "96fa761b-e2b5-4137-a74a-53630c764a42",
+              "name": "order_status",
+              "value": "={{ $('Data Table | Find Order').first().json.order_status }}",
+              "type": "string"
+            },
+            {
+              "id": "be7fa84f-4a68-4e65-8eb7-fdd52dc2c66b",
+              "name": "delivery_status",
+              "value": "={{ $('Data Table | Find Order').first().json.delivery_status }}",
+              "type": "string"
+            },
+            {
+              "id": "3f52b4a8-8c52-4ac4-ba9a-bc621fff26a8",
+              "name": "policy_id",
+              "value": "={{ $json.policy_id }}",
+              "type": "string"
+            },
+            {
+              "id": "0dfa6ffe-4113-4698-8c2b-dde2ea975893",
+              "name": "policy_content",
+              "value": "={{ $json.policy_content }}",
+              "type": "string"
+            },
+            {
+              "id": "7c059a22-6ebd-45ed-bb0b-27fa4e893738",
+              "name": "requires_approval",
+              "value": "={{ $json.requires_approval }}",
+              "type": "boolean"
+            },
+            {
+              "id": "7714a36d-e958-47e5-acee-bd8cc24fa4b6",
+              "name": "retrieval_status",
+              "value": "verified",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1344,
+        -192
+      ],
+      "id": "b9e23b8e-773f-4107-93f9-17b14dea0887",
+      "name": "Set | Prepare Verified Context"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65e704b7-b9e7-40cc-be2c-50325dcee99a",
+              "name": "retrieval_status",
+              "value": "order_not_verified",
+              "type": "string"
+            },
+            {
+              "id": "32663e8e-8666-4bfe-872a-c2dc2b60e3c1",
+              "name": "requires_human_review",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "c88b5f9a-e8ea-4988-ab23-9660df82f122",
+              "name": "message",
+              "value": "No matching order was found for this customer.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        96
+      ],
+      "id": "6819318e-464f-41e1-9ba0-db928ef3f1c5",
+      "name": "Set | Order Verification Failed"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "HbHpp6ejO80Pt8Nj",
+          "mode": "list",
+          "cachedResultName": "knowledge_base",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/HbHpp6ejO80Pt8Nj"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "category",
+              "keyValue": "={{ $('Execute Sub-workflow Trigger').first().json.category }}"
+            },
+            {
+              "keyName": "is_active",
+              "condition": "isTrue"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "fe790b5b-4080-49a4-9164-50a7edfa597d",
+      "name": "Data Table | Find Policy",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "744cc7b6-2e82-48d7-8870-e24f7763961b",
+              "leftValue": "={{ $json.policy_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "33a8534b-1e9a-4726-ba55-be6f3fa8fd3f",
+      "name": "IF | Policy Found"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ticket_id"
+            },
+            {
+              "name": "order_id"
+            },
+            {
+              "name": "customer_email"
+            },
+            {
+              "name": "category"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        96
+      ],
+      "id": "2e416756-3ade-4ce0-99cc-48baf7ff6cb4",
+      "name": "Execute Sub-workflow Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set | Test Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set | Test Ticket": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Find Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Find Order": {
+      "main": [
+        [
+          {
+            "node": "IF | Order Verified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Find Policy": {
+      "main": [
+        [
+          {
+            "node": "IF | Policy Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Sub-workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Find Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Order Verified": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Find Policy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set | Order Verification Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Policy Found": {
+      "main": [
+        [
+          {
+            "node": "Set | Prepare Verified Context",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set | Policy Missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "d1966ff6-44da-4999-88ca-d492a23731c3",
+  "meta": {},
+  "nodeGroups": [],
+  "id": "nNarCcztT1vaCci2",
+  "tags": []
+}

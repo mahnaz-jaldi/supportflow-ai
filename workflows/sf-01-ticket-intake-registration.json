@@ -1,0 +1,2433 @@
+{
+  "name": "SF-01 | Ticket Intake & Registration",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "139eaaee-d83d-4dda-8fe9-cb9715651ceb",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e90333b0-6cd4-4678-949c-1fd9d424c54a",
+              "name": "ticket_id",
+              "value": "TKT-AUDIT-TEST-002",
+              "type": "string"
+            },
+            {
+              "id": "00ae372d-26f5-4b00-9631-4a0cd6eb5a84",
+              "name": "=customer_email",
+              "value": "wrong@example.com",
+              "type": "string"
+            },
+            {
+              "id": "5ac258e0-e71c-4692-8081-a5dba477b203",
+              "name": "order_id",
+              "value": "NC-1001",
+              "type": "string"
+            },
+            {
+              "id": "658af25f-61a5-4489-8f12-707611f29a5c",
+              "name": "subject",
+              "value": "Delivery audit test 23-11 b",
+              "type": "string"
+            },
+            {
+              "id": "329ec244-eeb0-49b9-af61-28d6d6f71a3e",
+              "name": "description",
+              "value": "Could you please tell me the current delivery status of my order?",
+              "type": "string"
+            },
+            {
+              "id": "02e2c1c8-ed37-4c4c-83bf-dec29cc04ebe",
+              "name": "category",
+              "value": "unclassified",
+              "type": "string"
+            },
+            {
+              "id": "ef28caf3-081d-429f-8f88-eb6d4e2c85d3",
+              "name": "priority",
+              "value": "unclassified",
+              "type": "string"
+            },
+            {
+              "id": "e8a3a60d-e2db-4159-9e08-277c9e063968",
+              "name": "status",
+              "value": "new",
+              "type": "string"
+            },
+            {
+              "id": "cc37a365-850d-4088-9e9b-e7590227bb4c",
+              "name": "risk_level",
+              "value": "unassessed",
+              "type": "string"
+            },
+            {
+              "id": "7d2b685b-bbbc-40de-bfa6-af7875dc489f",
+              "name": "ai_confidence",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "075b3f6e-b5c3-476c-aef1-71e6895280db",
+              "name": "assigned_to",
+              "value": "automation",
+              "type": "string"
+            },
+            {
+              "id": "3f1f2f36-a1dc-4cde-8996-68f6a72d55df",
+              "name": "=created_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "f6562908-5f27-4aad-abd7-44ea4091e5e1",
+              "name": "=updated_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        -80
+      ],
+      "id": "50b8d1e3-1af2-4c18-b3c2-33c62b4dcd27",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "1e936ede-e3e3-4f35-8a15-4789b969c112",
+              "leftValue": "={{ $json.customer_email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b9b060cf-0e26-4bbc-90ec-1885bd64d8a4",
+              "leftValue": "={{ $json.order_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "35507ced-c3d7-4284-9bee-da82e69a1a77",
+              "leftValue": "={{ $json.description }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        -80
+      ],
+      "id": "c8ccd877-a790-498a-b3c3-8b7e2f4f195c",
+      "name": "IF | Required Fields Valid"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "30378e8f-ab22-43bd-ae40-960ad3f89474",
+              "name": "validation_status",
+              "value": "invalid",
+              "type": "string"
+            },
+            {
+              "id": "663b7abd-0f8d-403b-b555-ea2fd8ab1936",
+              "name": "error_code",
+              "value": "MISSING_REQUIRED_FIELDS",
+              "type": "string"
+            },
+            {
+              "id": "0a4c9f57-995b-4512-8da0-240940111ffb",
+              "name": "message",
+              "value": "Customer email, order ID or description is missing.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        16
+      ],
+      "id": "48f10b22-a44d-4f69-9e12-bf85df4632d8",
+      "name": "Set | Missing Information"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "order_id",
+              "keyValue": "={{ $json.order_id }}"
+            },
+            {
+              "keyName": "customer_email",
+              "keyValue": "={{ $json.customer_email }}"
+            },
+            {
+              "keyName": "subject",
+              "keyValue": "={{ $json.subject }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -176
+      ],
+      "id": "6b8b7693-5cfb-4e62-931d-57dba210341b",
+      "name": "Data Table | Find Existing Ticket",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "85b12d7c-68c5-4760-bc17-729194b73322",
+              "leftValue": "={{ $json.order_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "891a8ad3-9279-4b40-8e96-0a631fa8998c",
+              "leftValue": "={{ $json.customer_email}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7f8ec48e-be5d-443f-a12d-aa727931ef9a",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        896,
+        -176
+      ],
+      "id": "e861c6b5-1a44-48e3-97fd-7d61518e4376",
+      "name": "IF | Existing Ticket Found"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a441e71a-ff9c-4134-ae2c-4f09d6ea7849",
+              "name": "result",
+              "value": "duplicate",
+              "type": "string"
+            },
+            {
+              "id": "30e2c3b2-570c-4824-8424-9dd8061826fc",
+              "name": "ticket_created",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "4e5e4b30-c57e-47ac-a12d-bbb2bb00e395",
+              "name": "message",
+              "value": "An existing ticket was found. No new ticket created.",
+              "type": "string"
+            },
+            {
+              "id": "ebd8946f-12ef-4c65-8cc1-6015dd44570c",
+              "name": "=existing_ticket_id",
+              "value": "={{ $json.ticket_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        -272
+      ],
+      "id": "49016430-0841-44da-b100-5ea03646f115",
+      "name": "Set | Duplicate Detected"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Edit Fields').first().json.ticket_id }}",
+            "customer_email": "={{ $('Edit Fields').first().json.customer_email }}",
+            "order_id": "={{ $('Edit Fields').first().json.order_id }}",
+            "subject": "={{ $('Edit Fields').first().json.subject }}",
+            "status": "={{ $('Edit Fields').first().json.status }}",
+            "description": "={{ $('Edit Fields').first().json.description }}",
+            "category": "={{ $('Edit Fields').first().json.category }}",
+            "priority": "={{ $('Edit Fields').first().json.priority }}",
+            "risk_level": "={{ $('Edit Fields').first().json.risk_level }}",
+            "ai_confidence": "={{ $('Edit Fields').first().json.ai_confidence }}",
+            "assigned_to": "={{ $('Edit Fields').first().json.assigned_to }}",
+            "created_at": "={{ $('Edit Fields').first().json.created_at }}",
+            "updated_at": "={{ $('Edit Fields').first().json.updated_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_confidence",
+              "displayName": "ai_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        -80
+      ],
+      "id": "0c6e130e-7185-4517-9503-19f8596d6ac2",
+      "name": "Data Table | Insert Ticket"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ObhvHMnZaOm8WeAU",
+          "mode": "list",
+          "cachedResultName": "audit_logs",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/ObhvHMnZaOm8WeAU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Edit Fields').first().json.ticket_id }}",
+            "event_type": "ticket_created",
+            "actor": "automation",
+            "new_status": "new",
+            "details": "Ticket created from test request",
+            "timestamp": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actor",
+              "displayName": "actor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "previous_status",
+              "displayName": "previous_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "new_status",
+              "displayName": "new_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        -80
+      ],
+      "id": "70aa865a-9207-436a-b270-36562d7e0bea",
+      "name": "Data Table | Insert Audit Log"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "890daefa-1d3a-4e4e-9976-01d8b4e43746",
+              "name": "ticket_id",
+              "value": "={{ $('Edit Fields').first().json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "id": "6e63550a-726d-4350-888f-bbb5e5cae996",
+              "name": "customer_email",
+              "value": "={{ $('Edit Fields').first().json.customer_email }}",
+              "type": "string"
+            },
+            {
+              "id": "f605928f-2874-44d2-8704-9c57f50bcfb9",
+              "name": "order_id",
+              "value": "={{ $('Edit Fields').first().json.order_id }}",
+              "type": "string"
+            },
+            {
+              "id": "77fe8539-479f-4e12-ab58-7b50198fc802",
+              "name": "subject",
+              "value": "={{ $('Edit Fields').first().json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "c3ac33e5-7b04-429c-88d8-f7172480c890",
+              "name": "description",
+              "value": "={{ $('Edit Fields').first().json.description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        -80
+      ],
+      "id": "588c208c-0289-41eb-930d-395114de77ae",
+      "name": "Set | Prepare Classification Input"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "K1ghOfNqC16Pn3DU",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/K1ghOfNqC16Pn3DU",
+          "cachedResultName": "SF-03 | AI Ticket Classification"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1792,
+        -80
+      ],
+      "id": "48705783-0085-4c7a-9be3-6a9e0d098358",
+      "name": "Call | SF-03 Classification",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "nNarCcztT1vaCci2",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/nNarCcztT1vaCci2",
+          "cachedResultName": "SF-02 | Order & Policy Retrieval"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "order_id": "={{ $json.order_id }}",
+            "customer_email": "={{ $json.customer_email }}",
+            "category": "={{ $json.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        2240,
+        96
+      ],
+      "id": "09b31bca-c471-4ebe-8ea7-ccadcf7bca92",
+      "name": "Call | SF-02 Retrieval",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "category": "={{ $('Call | SF-03 Classification').first().json.output.category }}",
+            "priority": "={{ $('Call | SF-03 Classification').first().json.output.priority }}",
+            "risk_level": "={{ $('Call | SF-03 Classification').first().json.output.risk_level }}",
+            "ai_confidence": "={{ Number($('Call | SF-03 Classification').first().json.output.ai_confidence) }}",
+            "status": "={{ $('Call | SF-03 Classification').first().json.requires_human_review ? 'pending_review' : 'classified' }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_confidence",
+              "displayName": "ai_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        0
+      ],
+      "id": "0848f348-8e7b-4916-b4e1-f1757a1add8f",
+      "name": "Data Table | Update Ticket Classification"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "eNuTUAdLmCwRtNmR",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/eNuTUAdLmCwRtNmR",
+          "cachedResultName": "SF-04 | AI Response Generation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "requires_approval": "={{ $('Call | SF-02 Retrieval').first().json.requires_approval === true }}",
+            "requires_human_review": "={{ $('Call | SF-03 Classification').first().json.requires_human_review === true }}",
+            "ticket_id": "={{ $('Call | SF-03 Classification').first().json.ticket_id }}",
+            "customer_email": "={{ $('Call | SF-03 Classification').first().json.customer_email }}",
+            "subject": "={{ $('Call | SF-03 Classification').first().json.subject }}",
+            "description": "={{ $('Call | SF-03 Classification').first().json.description }}",
+            "category": "={{ $('Call | SF-03 Classification').first().json.output.category }}",
+            "order_status": "={{ $('Call | SF-02 Retrieval').first().json.order_status }}",
+            "delivery_status": "={{ $('Call | SF-02 Retrieval').first().json.delivery_status?.trim() }}",
+            "policy_content": "={{ $('Call | SF-02 Retrieval').first().json.policy_content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "order_status",
+              "displayName": "order_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "delivery_status",
+              "displayName": "delivery_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "policy_content",
+              "displayName": "policy_content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "requires_approval",
+              "displayName": "requires_approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean"
+            },
+            {
+              "id": "requires_human_review",
+              "displayName": "requires_human_review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        2688,
+        64
+      ],
+      "id": "612246f2-6c0e-48df-bc90-455ecab5d68b",
+      "name": "Call | SF-04 Response Generation",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "831b1743-c3a0-4510-8356-abe4144b26d7",
+              "leftValue": "={{ $('Call | SF-02 Retrieval').first().json.retrieval_status }}",
+              "rightValue": "=verified",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "9b0f08b3-007b-497f-80f0-23d64d77db13",
+              "leftValue": "={{ $('Call | SF-02 Retrieval').first().json.policy_content }}",
+              "rightValue": "is not empty",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a2ba13fd-27b1-44cf-9825-9d2d9114fb7d",
+              "leftValue": "={{ $('Call | SF-02 Retrieval').first().json.order_status }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        2464,
+        160
+      ],
+      "id": "c758b404-a4d8-47dd-8233-68dbfbcb59ce",
+      "name": "IF | Retrieval Verified"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $('Call | SF-03 Classification').first().json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "draft_response": "={{ $('Call | SF-04 Response Generation').first().json.text }}",
+            "status": "={{ ($('Call | SF-03 Classification').first().json.requires_human_review === true || $('Call | SF-02 Retrieval').first().json.requires_approval === true) ? 'pending_review' : 'draft_ready' }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_confidence",
+              "displayName": "ai_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "draft_response",
+              "displayName": "draft_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        64
+      ],
+      "id": "747c34eb-6a71-4229-8d93-bcc47091124f",
+      "name": "Data Table | Save Draft Response"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $('Call | SF-03 Classification').first().json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ ['order_not_verified', 'policy_not_found'].includes($('Call | SF-02 Retrieval').first().json.retrieval_status) ? $('Call | SF-02 Retrieval').first().json.retrieval_status : 'retrieval_incomplete' }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_confidence",
+              "displayName": "ai_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "draft_response",
+              "displayName": "draft_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2688,
+        256
+      ],
+      "id": "29fc3895-a30f-499f-a820-3caf5ddaab99",
+      "name": "Data Table | Mark Retrieval Failed"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $('Edit Fields').first().json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "error",
+            "assigned_to": "human_support",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_confidence",
+              "displayName": "ai_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "draft_response",
+              "displayName": "draft_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        -272
+      ],
+      "id": "cf5be5a3-3057-48fa-af50-7f3adc056336",
+      "name": "Data Table | Mark Ticket Error"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ObhvHMnZaOm8WeAU",
+          "mode": "list",
+          "cachedResultName": "audit_logs",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/ObhvHMnZaOm8WeAU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Edit Fields').first().json.ticket_id }}",
+            "event_type": "error",
+            "actor": "automation",
+            "new_status": "error",
+            "details": "={{ $prevNode.name + ' failed: ' + JSON.stringify($json.error ?? $json) }}",
+            "timestamp": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actor",
+              "displayName": "actor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "previous_status",
+              "displayName": "previous_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "new_status",
+              "displayName": "new_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        -272
+      ],
+      "id": "03e6a610-2cdc-42ad-8cea-b571abbdb91b",
+      "name": "Data Table | Log Pipeline Error"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ObhvHMnZaOm8WeAU",
+          "mode": "list",
+          "cachedResultName": "audit_logs",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/ObhvHMnZaOm8WeAU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Edit Fields').first().json.ticket_id }}",
+            "event_type": "classified",
+            "actor": "ai_classifier",
+            "previous_status": "new",
+            "new_status": "={{ $('Data Table | Update Ticket Classification').first().json.status }}",
+            "details": "={{ JSON.stringify({ ...$('Call | SF-03 Classification').first().json.output, review_reasons: $('Call | SF-03 Classification').first().json.review_reasons }) }}",
+            "timestamp": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actor",
+              "displayName": "actor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "previous_status",
+              "displayName": "previous_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "new_status",
+              "displayName": "new_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        -224
+      ],
+      "id": "57093716-fd4f-45a9-a05d-cd89c34fd96c",
+      "name": "Data Table | Log Classification",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ObhvHMnZaOm8WeAU",
+          "mode": "list",
+          "cachedResultName": "audit_logs",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/ObhvHMnZaOm8WeAU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Edit Fields').first().json.ticket_id }}",
+            "event_type": "retrieval_failed",
+            "actor": "automation",
+            "previous_status": "={{ $('Data Table | Update Ticket Classification').first().json.status }}",
+            "new_status": "={{ $('Data Table | Mark Retrieval Failed').first().json.status }}",
+            "details": "={{ 'order_id=' + $('Edit Fields').first().json.order_id + ', retrieval_status=' + $('Call | SF-02 Retrieval').first().json.retrieval_status }}",
+            "timestamp": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actor",
+              "displayName": "actor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "previous_status",
+              "displayName": "previous_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "new_status",
+              "displayName": "new_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        256
+      ],
+      "id": "7892ea78-1e0e-4aec-b6db-b6c035107c57",
+      "name": "Data Table | Log Retrieval Failed",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ObhvHMnZaOm8WeAU",
+          "mode": "list",
+          "cachedResultName": "audit_logs",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/ObhvHMnZaOm8WeAU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Edit Fields').first().json.ticket_id }}",
+            "event_type": "draft_created",
+            "previous_status": "={{ $('Data Table | Update Ticket Classification').first().json.status }}",
+            "new_status": "={{ $('Data Table | Save Draft Response').first().json.status }}",
+            "details": "={{ 'policy_id=' + $('Call | SF-02 Retrieval').first().json.policy_id + ', order_status=' + $('Call | SF-02 Retrieval').first().json.order_status }}",
+            "timestamp": "={{ $now.toISO() }}",
+            "actor": "ai_responder"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actor",
+              "displayName": "actor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "previous_status",
+              "displayName": "previous_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "new_status",
+              "displayName": "new_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        64
+      ],
+      "id": "70536446-28d9-4f64-ab26-a0e1d8912256",
+      "name": "Data Table | Log Draft Created",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "IF | Required Fields Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Required Fields Valid": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Find Existing Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set | Missing Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Find Existing Ticket": {
+      "main": [
+        [
+          {
+            "node": "IF | Existing Ticket Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Existing Ticket Found": {
+      "main": [
+        [
+          {
+            "node": "Set | Duplicate Detected",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Table | Insert Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Insert Ticket": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Insert Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Insert Audit Log": {
+      "main": [
+        [
+          {
+            "node": "Set | Prepare Classification Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set | Prepare Classification Input": {
+      "main": [
+        [
+          {
+            "node": "Call | SF-03 Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call | SF-03 Classification": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Update Ticket Classification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Table | Log Pipeline Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call | SF-02 Retrieval": {
+      "main": [
+        [
+          {
+            "node": "IF | Retrieval Verified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Table | Log Pipeline Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Update Ticket Classification": {
+      "main": [
+        [
+          {
+            "node": "Call | SF-02 Retrieval",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Data Table | Log Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Retrieval Verified": {
+      "main": [
+        [
+          {
+            "node": "Call | SF-04 Response Generation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Table | Mark Retrieval Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call | SF-04 Response Generation": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Save Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Table | Log Pipeline Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Log Pipeline Error": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Mark Ticket Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Mark Retrieval Failed": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Log Retrieval Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Save Draft Response": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Log Draft Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "0yQ4JUQe9cbS3xpi",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "2123fd88-00d3-4c7d-968a-f5262043d55f",
+  "meta": {},
+  "nodeGroups": [],
+  "id": "K7ZeTEBspOrsq616",
+  "tags": []
+}

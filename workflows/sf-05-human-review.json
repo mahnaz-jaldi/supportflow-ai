@@ -1,0 +1,623 @@
+{
+  "name": "SF-05 | Human Review",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $json.ticket_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "8156bade-98d9-46a4-83bb-6462f2229fde",
+      "name": "Data Table | Find Ticket For Review",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "40327354-3abe-47fc-9152-4a6efcdc08ae",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "draft_ready",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "6ed4d797-5d85-447f-96dc-f23436a73f8d",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "pending_review",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "11421f5d-8fac-42d1-b411-1b66143297e1",
+      "name": "IF | Ticket Reviewable"
+    },
+    {
+      "parameters": {
+        "formTitle": "NordCart Draft Review",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "ticket_id",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "decision",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "approve"
+                  },
+                  {
+                    "option": "approve_with_edits"
+                  },
+                  {
+                    "option": "reject"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "edited_response",
+              "fieldType": "textarea"
+            },
+            {
+              "fieldLabel": "comment",
+              "fieldType": "textarea"
+            },
+            {
+              "fieldLabel": "reviewer_name",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "787bd25e-3bf6-4a10-b51f-cc7e3bc51daa",
+      "name": "Form | Review Decision",
+      "webhookId": "bce0cc62-92de-4d87-bb9c-3dcbbbf4bfa7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "aeaca955-6f03-4148-bd38-fae88943acfd",
+              "leftValue": "={{ $('Form | Review Decision').first().json.decision !== 'approve_with_edits' || $('Form | Review Decision').first().json.edited_response.trim() !== '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "b9021621-dfb7-4cce-934e-1259e2d736e9",
+      "name": "IF | Review Input Valid"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "F2H4TKJ6Q1KGHcHK",
+          "mode": "list",
+          "cachedResultName": "tickets",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/F2H4TKJ6Q1KGHcHK"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $('Form | Review Decision').first().json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ $('Form | Review Decision').first().json.decision === 'reject' ? 'rejected' : 'approved' }}",
+            "final_response": "={{ $('Form | Review Decision').first().json.decision === 'approve_with_edits' ? $('Form | Review Decision').first().json.edited_response : ($('Form | Review Decision').first().json.decision === 'approve' ? $('Data Table | Find Ticket For Review').first().json.draft_response.replace(/^DRAFT[^\\n]*\\n+/, '') : '') }}",
+            "assigned_to": "={{ $('Form | Review Decision').first().json.reviewer_name }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "customer_email",
+              "displayName": "customer_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_confidence",
+              "displayName": "ai_confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "draft_response",
+              "displayName": "draft_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "final_response",
+              "displayName": "final_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        -192
+      ],
+      "id": "b016e088-0150-4fc1-92fc-fd0ebe942470",
+      "name": "Data Table | Save Review Decision"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ObhvHMnZaOm8WeAU",
+          "mode": "list",
+          "cachedResultName": "audit_logs",
+          "cachedResultUrl": "/projects/fxEIixm5ogEFXXkl/datatables/ObhvHMnZaOm8WeAU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Form | Review Decision').first().json.ticket_id }}",
+            "event_type": "={{ 'review_' + $('Form | Review Decision').first().json.decision }}",
+            "actor": "={{ 'human:' + $('Form | Review Decision').first().json.reviewer_name }}",
+            "previous_status": "={{ $('Data Table | Find Ticket For Review').first().json.status }}",
+            "new_status": "={{ $('Data Table | Save Review Decision').first().json.status }}",
+            "details": "={{ $('Form | Review Decision').first().json.comment || 'no comment' }}",
+            "timestamp": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actor",
+              "displayName": "actor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "previous_status",
+              "displayName": "previous_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "new_status",
+              "displayName": "new_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        -192
+      ],
+      "id": "cfddfdb6-6933-4264-9201-19daf25321a5",
+      "name": "Data Table | Log Review Decision",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8df301e3-74cb-4d50-b644-9b1ed232b045",
+              "name": "result",
+              "value": "not_reviewable",
+              "type": "string"
+            },
+            {
+              "id": "67addd75-c3ec-4326-bc78-ec58ddd78648",
+              "name": "message",
+              "value": "Ticket not found or not in a reviewable state.",
+              "type": "string"
+            },
+            {
+              "id": "d10c4fd7-e8e0-42bf-933c-3cf9f3e3ba6f",
+              "name": "current_status",
+              "value": "={{ $('Data Table | Find Ticket For Review').first().json.status ?? 'not_found' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        96
+      ],
+      "id": "98152ef2-8eff-42dd-88ba-d1bcf56ce6fe",
+      "name": "Set | Not Reviewable"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a400b546-2e26-4233-98d4-e08c190f16cd",
+              "name": "result",
+              "value": "invalid_input",
+              "type": "string"
+            },
+            {
+              "id": "a8f8df6a-225b-4409-9627-cdd7f28a21ba",
+              "name": "message",
+              "value": "Decision approve_with_edits requires an edited_response.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        0
+      ],
+      "id": "cb453b2d-0b33-4657-9063-7bb661a777fc",
+      "name": "Set | Edited Text Missing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Data Table | Find Ticket For Review": {
+      "main": [
+        [
+          {
+            "node": "IF | Ticket Reviewable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form | Review Decision": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Find Ticket For Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Ticket Reviewable": {
+      "main": [
+        [
+          {
+            "node": "IF | Review Input Valid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set | Not Reviewable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF | Review Input Valid": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Save Review Decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set | Edited Text Missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Table | Save Review Decision": {
+      "main": [
+        [
+          {
+            "node": "Data Table | Log Review Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "afe767d4-fd3c-46d4-b169-458862f35435",
+  "meta": {},
+  "nodeGroups": [],
+  "id": "I4JRQfdWPSEEhO10",
+  "tags": []
+}

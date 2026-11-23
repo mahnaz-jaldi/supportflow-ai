@@ -1,0 +1,4 @@
+policy_id,category,policy_title,policy_content,requires_approval,is_active,last_updated
+POL-001,delivery,Delivery Delay Policy,Customers may request a delivery status update when an order is delayed. The support system must verify the actual order status before responding. No delivery date may be invented.,false,true,2026-10-31T23:00:00.000Z
+POL-002,returns,Return and Refund Policy,Customers may request a return within 30 days of delivery. Refund eligibility must be verified against the order record. Any refund decision requires human approval.,true,true,2026-10-31T23:00:00.000Z
+POL-003,cancellation,Order Cancellation Policy,Cancellation requests can be considered before an order is shipped. The support system must verify the order status. Cancellation decisions require human approval.,true,true,2026-10-31T23:00:00.000Z
